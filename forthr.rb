@@ -22,9 +22,11 @@ module ForthR
         "("        => Proc.new { code.consume_until ")"                               },
         "\\"       => Proc.new { code.clear                                           },
         ":"        => Proc.new { define_word code, words                              },
-        "variable" => Proc.new { define_variable(code, words)                         },
+        "variable" => Proc.new { define_variable code, words                          },
+        "constant" => Proc.new { define_constant code, words                          },
         "see"      => Proc.new { out << words[code.shift].see(words)                  },
         "bye"      => Proc.new { exit                                                 },
+        "debugger" => Proc.new { require 'pry'; binding.pry;                          },
         "!"        => Proc.new {  words[last_word].value = stack.pop                  },
         "@"        => Proc.new { stack << words[last_word].value                      },
       }
@@ -43,6 +45,11 @@ module ForthR
     def define_variable(code, words)
       self.last_word = code.shift.downcase
       words[last_word]= VariableWord.new(self, last_word)
+    end
+
+    def define_constant(code, words)
+      value, name = stack.pop, code.shift
+      words[name] = PrimitiveWord.new(name) { stack << value }
     end
 
     def <<(line)

@@ -208,4 +208,18 @@ class TestStack < Minitest::Test
     @f << "foo @ ."
     assert_equal "1 ", @f.read
   end
+
+  def test_contant_declaration
+    @f << "2121 constant limit"
+    @f << "11111111111"
+    @f << "limit ."
+    assert_equal "2121 ", @f.read
+  end
+
+  # bugs
+
+  def test_constant_declaration_has_no_side_effects
+    @f << "2 constant limit"
+    assert_equal [2], @f.stack
+  end
 end
